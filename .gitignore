@@ -1,0 +1,4 @@
+.env
+secrets.toml
+myenv
+.DS_Store

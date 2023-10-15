@@ -27,28 +27,22 @@ import os
 from langchain import chat_models, prompts, smith
 from langchain.smith import RunEvalConfig
 from langchain.document_loaders import Docx2txtLoader
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # take environment variables from .env.
+os.environ['OPENAI_API_KEY'] = os.getenv("OPENAI_API_KEY")
+os.environ["LANGCHAIN_API_KEY"]= os.getenv("ls__3904770413d140ee85c3aca8399935c1")
 
 
 os.environ["LANGCHAIN_TRACING_V2"]="true"
 os.environ["LANGCHAIN_ENDPOINT"]="https://api.smith.langchain.com"
-os.environ["LANGCHAIN_API_KEY"]="ls__3904770413d140ee85c3aca8399935c1"
 os.environ["LANGCHAIN_PROJECT"]="loans_intel_transcripts"
 
 client = Client()
 
-
-
-#print(pages)
-#os.environ['OPENAI_API_KEY'] = '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'
-
-os.environ['COHERE_API_KEY'] = 'SoA8jfuVi9fC8WJEbdPeT8rZPn131zn93TMpnPqF'
-os.environ['OPENAI_API_KEY'] = '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'
-cohere_api_prod= 'SoA8jfuVi9fC8WJEbdPeT8rZPn131zn93TMpnPqF'
-cohere_api_dev = '6XcISTNJVBt1fOMHzc1KjzXBfl6Wf7YDDQTpfYmS'
-
 #llm = CohereSummarize(cohere_api_key=cohere_api_prod,model='command',temperature=0)
 llm = ChatOpenAI(model="gpt-4",temperature=0)
-
 
 # Map
 from langchain import hub
