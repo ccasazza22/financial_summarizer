@@ -1,3 +1,6 @@
+import streamlit as st
+from pathlib import Path
+import os 
 from langchain.chains.mapreduce import MapReduceChain
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import ReduceDocumentsChain, MapReduceDocumentsChain
@@ -6,33 +9,22 @@ from langchain.prompts import PromptTemplate
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 from langchain.chat_models import ChatOpenAI
 from langchain.chains.summarize import load_summarize_chain
-import os 
 from langsmith import Client
 from langchain.document_loaders import PyPDFLoader
 from langchain import PromptTemplate, LLMChain
-from typing import Dict
-from langchain.llms.sagemaker_endpoint import LLMContentHandler
-from typing import Tuple, Dict
-from langchain.llms import Cohere
 from langchain.llms.cohere_summarize import CohereSummarize
-import re
-from typing import Any, Optional
 from langchain.chains import LLMChain
-from langchain.evaluation import StringEvaluator
-from langchain.schema import output_parser
 import langsmith
 from langchain import chat_models, prompts, smith
 import langsmith
-import os
-from langchain import chat_models, prompts, smith
-from langchain.smith import RunEvalConfig
 from langchain.document_loaders import Docx2txtLoader
 from dotenv import load_dotenv
-import os
+
 
 load_dotenv()  # take environment variables from .env.
-os.environ['OPENAI_API_KEY'] = os.getenv("OPENAI_API_KEY")
-os.environ["LANGCHAIN_API_KEY"]= os.getenv("ls__3904770413d140ee85c3aca8399935c1")
+os.environ['OPENAI_API_KEY'] = st.secrets["general"]["OPENAI_API_KEY"]
+os.environ["LANGCHAIN_API_KEY"]= st.secrets["general"]["LANGCHAIN_API_KEY"]
+
 
 
 os.environ["LANGCHAIN_TRACING_V2"]="true"
@@ -98,18 +90,6 @@ reduce_documents_chain = ReduceDocumentsChain(
     token_max=3500,
 )
 
-def process_file(file_path):
-    loader = Docx2txtLoader(file_path)
-    pages = loader.load_and_split()
-    split_docs = text_splitter.split_documents(pages)
-    print(split_docs)
-    print(map_reduce_chain.run(split_docs))
-
-def process_directory(directory_path):
-    os.chdir(directory_path)  # change the current working directory
-    for file in glob.glob("*.docx"):
-        process_file(file)
-
 # Combining documents by mapping a chain over them, then combining results
 map_reduce_chain = MapReduceDocumentsChain(
     # Map chain
@@ -128,20 +108,46 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
 
 
 
-#loader = PyPDFLoader("/Users/ccasazza/Documents/Arxada - F1Q23 Earnings Transcript (05.31.23).pdf")
-#pages = loader.load_and_split()
-#split_docs = text_splitter.split_documents(pages)
-#print(split_docs)
+def main():
+    st.title("Document Processing Application")
+    
+    uploaded_file = st.file_uploader("Choose a Word file", type=['docx'])
 
+    if uploaded_file is not None:
+        with st.spinner('Processing...'):
+            try:
+                # Read word file
+                file_path = Path(uploaded_file.name)
+                with open(file_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
 
-#print(map_reduce_chain.run(split_docs))
+                # Process file
+                output = process_file(file_path)
 
-import os
-import glob
+                # Show output
+                st.subheader('Output:')
+                st.write(output)
+            except Exception as e:
+                st.error(f"An error occurred: {str(e)}")
+            finally:
+                # Delete the file after processing
+                try:
+                    file_path.unlink()
+                except Exception as e:
+                    st.error(f"Error deleting file: {str(e)}")
 
+def process_file(file_path):
+    try:
+        loader = Docx2txtLoader(file_path)
+        pages = loader.load_and_split()
+        split_docs = text_splitter.split_documents(pages)
+        return map_reduce_chain.run(split_docs)
+    except Exception as e:
+        st.error(f"An error occurred during processing: {str(e)}")
 
+# ... (Your chains and loaders initialization goes here)
 
-
-# replace 'path_to_directory' with the actual path of your directory
-process_directory("/Users/ccasazza/Documents/Loans Intel")
+# Call main function
+if __name__ == "__main__":
+    main()
 
