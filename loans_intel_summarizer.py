@@ -12,7 +12,6 @@ from langchain.chains.summarize import load_summarize_chain
 from langsmith import Client
 from langchain.document_loaders import PyPDFLoader
 from langchain import PromptTemplate, LLMChain
-from langchain.llms.cohere_summarize import CohereSummarize
 from langchain.chains import LLMChain
 import langsmith
 from langchain import chat_models, prompts, smith
@@ -33,7 +32,7 @@ os.environ["LANGCHAIN_PROJECT"]="loans_intel_transcripts"
 
 client = Client()
 
-#llm = CohereSummarize(cohere_api_key=cohere_api_prod,model='command',temperature=0)
+
 llm = ChatOpenAI(model="gpt-4",temperature=0)
 
 # Map
@@ -46,7 +45,9 @@ map_chain = LLMChain(llm=llm, prompt=map_template)
 
 # Reduce
 reduce_template = """The following is set of summaries:
-{doc_summaries}
+{doc_summaries}\n
+
+-------------------------------------------------------------------\n
 
 Based on these summaries, please do the following: 
 (1) Prioritize information on Market Conditions and performance, cost management and savings, business strategy and future outlook, regulatory changes and impact. 
