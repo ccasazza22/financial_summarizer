@@ -17,6 +17,10 @@ import langsmith
 from langchain import chat_models, prompts, smith
 import langsmith
 from langchain.document_loaders import Docx2txtLoader
+
+import sys
+print(sys.path)
+
 from dotenv import load_dotenv
 
 
