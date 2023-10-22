@@ -21,10 +21,10 @@ from langchain.document_loaders import Docx2txtLoader
 from dotenv import load_dotenv
 import tempfile
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
 from langchain.prompts import PromptTemplate
 from langchain.chains.question_answering import load_qa_chain
 from langchain import OpenAI
+from langchain.vectorstores import FAISS
 
 
 
@@ -122,9 +122,13 @@ def process_file(pages):
         split_docs = text_splitter.split_documents(pages)
         output = map_reduce_chain.run(split_docs)
 
+        # Show output
+        st.subheader('Your summarized document:')
+        st.code(output, language='')
+
         # Embed documents once they are processed
         embeddings = OpenAIEmbeddings()
-        retriever_docs = Chroma.from_texts(split_docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(split_docs))]).as_retriever()
+        retriever_docs = FAISS.from_texts(split_docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(split_docs))]).as_retriever()
         
         return output, retriever_docs
     except Exception as e:
@@ -159,11 +163,8 @@ def main():
                 pages = loader.load_and_split()
                
                 # Process file
-                output, retriever_docs = process_file(pages)
+                retriever_docs = process_file(pages)
 
-                # Show output
-                st.subheader('Your summarized document:')
-                st.code(output, language='')
 
                 # Add a section for follow-up questions
                 st.subheader('Ask a follow-up question:')
