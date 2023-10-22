@@ -146,7 +146,7 @@ def main():
     uploaded_file = st.file_uploader("Choose a Word file", type=['docx'])
 
     if uploaded_file is not None:
-        with st.spinner('Processing...'):
+        with st.spinner('Processing...This may take a few minutes'):
             try:
                 # Create a temporary file and save the uploaded file's content to this temporary file
                 tfile = tempfile.NamedTemporaryFile(delete=False)
@@ -170,7 +170,7 @@ def main():
                 query = st.text_input("Please enter your question here")
 
                 if query:
-                    with st.spinner('Processing your question...'):
+                    with st.spinner('Processing your question...this may take a few minutes'):
                         try:
                             answer = process_query(query, retriever_docs)  # Pass the retriever_docs to the process_query function
                             st.subheader('Answer:')
