@@ -18,6 +18,8 @@ from langchain import chat_models, prompts, smith
 import langsmith
 from langchain.document_loaders import Docx2txtLoader
 from dotenv import load_dotenv
+import tempfile
+
 
 
 load_dotenv()  # take environment variables from .env.
@@ -117,18 +119,27 @@ def main():
     if uploaded_file is not None:
         with st.spinner('Processing...'):
             try:
-                # Read word file in memory
-                loader = Docx2txtLoader(uploaded_file)
+                # Create a temporary file and save the uploaded file's content to this temporary file
+                tfile = tempfile.NamedTemporaryFile(delete=False)
+                tfile.write(uploaded_file.read())
+                tfile.close()
+
+                # Now that you have a real file on your filesystem, you can pass its path to Docx2txtLoader
+                loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
+
                 # Process file
                 output = process_file(pages)
 
                 # Show output
                 st.subheader('Your summarized document:')
                 st.code(output, language='')
-
+                
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
+            finally:
+                # Delete the temporary file
+                os.unlink(tfile.name)
 
 def process_file(file_text):
     try:
