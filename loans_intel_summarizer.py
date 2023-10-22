@@ -118,10 +118,10 @@ def main():
         with st.spinner('Processing...'):
             try:
                 # Read word file in memory
-                file_text = docx2txt.process(uploaded_file)
-
+                loader = Docx2txtLoader(uploaded_file)
+                pages = loader.load_and_split()
                 # Process file
-                output = process_file(file_text)
+                output = process_file(pages)
 
                 # Show output
                 st.subheader('Your summarized document:')
