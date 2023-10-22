@@ -125,8 +125,10 @@ def main():
                 tfile.close()
 
                 # Now that you have a real file on your filesystem, you can pass its path to Docx2txtLoader
+                print(f"Loading {tfile.name}")
                 loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
+               
 
                 # Process file
                 output = process_file(pages)
@@ -141,10 +143,10 @@ def main():
                 # Delete the temporary file
                 os.unlink(tfile.name)
 
-def process_file(file_text):
+def process_file(pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
-        split_docs = text_splitter.split_text(file_text)
+        split_docs = text_splitter.split_documents(pages)
         return map_reduce_chain.run(split_docs)
     except Exception as e:
         st.error(f"An error occurred during processing: {str(e)}")
