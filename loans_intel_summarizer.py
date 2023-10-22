@@ -110,7 +110,7 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
 )
 
 def main():
-    st.title("AI Document Summarizer")
+    st.title("Loans Intel Earnings Call Summarizer")
     st.subheader("Welcome to the Document Summarizer Application!")
     st.write("To get started, please upload a Word (.docx) file. The application will process the file and provide a summarized version of the document contents.")
 
