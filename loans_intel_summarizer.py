@@ -17,10 +17,6 @@ import langsmith
 from langchain import chat_models, prompts, smith
 import langsmith
 from langchain.document_loaders import Docx2txtLoader
-
-import sys
-print(sys.path)
-
 from dotenv import load_dotenv
 
 
@@ -111,48 +107,36 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=0
 )
 
-
-
 def main():
-    st.title("Document Processing Application")
-    
+    st.title("AI Document Summarizer")
+    st.subheader("Welcome to the Document Summarizer Application!")
+    st.write("To get started, please upload a Word (.docx) file. The application will process the file and provide a summarized version of the document contents.")
+
     uploaded_file = st.file_uploader("Choose a Word file", type=['docx'])
 
     if uploaded_file is not None:
         with st.spinner('Processing...'):
             try:
-                # Read word file
-                file_path = Path(uploaded_file.name)
-                with open(file_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
+                # Read word file in memory
+                file_text = docx2txt.process(uploaded_file)
 
                 # Process file
-                output = process_file(file_path)
+                output = process_file(file_text)
 
                 # Show output
-                st.subheader('Output:')
-                st.write(output)
+                st.subheader('Your summarized document:')
+                st.code(output, language='')
+
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
-            finally:
-                # Delete the file after processing
-                try:
-                    file_path.unlink()
-                except Exception as e:
-                    st.error(f"Error deleting file: {str(e)}")
 
-def process_file(file_path):
+def process_file(file_text):
     try:
-        loader = Docx2txtLoader(file_path)
-        pages = loader.load_and_split()
-        split_docs = text_splitter.split_documents(pages)
+        # assuming text_splitter.split_text and map_reduce_chain.run accept text 
+        split_docs = text_splitter.split_text(file_text)
         return map_reduce_chain.run(split_docs)
     except Exception as e:
         st.error(f"An error occurred during processing: {str(e)}")
 
-# ... (Your chains and loaders initialization goes here)
-
-# Call main function
 if __name__ == "__main__":
     main()
-
