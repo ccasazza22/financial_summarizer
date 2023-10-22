@@ -1,3 +1,4 @@
+from langchain.embeddings.openai import OpenAIEmbeddings
 import streamlit as st
 from pathlib import Path
 import os 
@@ -19,6 +20,12 @@ import langsmith
 from langchain.document_loaders import Docx2txtLoader
 from dotenv import load_dotenv
 import tempfile
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.prompts import PromptTemplate
+from langchain.chains.question_answering import load_qa_chain
+from langchain import OpenAI
+
 
 
 
@@ -109,6 +116,16 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=0
 )
 
+def process_query(query, docs):
+    try:
+        embeddings = OpenAIEmbeddings()
+        docs = Chroma.from_texts(docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(docs))]).as_retriever()
+        chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
+        return chain({"input_documents": docs, "question": query}, return_only_outputs=True)
+    except Exception as e:
+        st.error(f"An error occurred during processing the query: {str(e)}")
+
+
 def main():
     st.title("Loans Intel Earnings Call Summarizer")
     st.subheader("Welcome to the Document Summarizer Application!")
@@ -136,6 +153,20 @@ def main():
                 # Show output
                 st.subheader('Your summarized document:')
                 st.code(output, language='')
+
+                # Add a section for follow-up questions
+                st.subheader('Ask a follow-up question:')
+                query = st.text_input("Please enter your question here")
+
+                if query:
+                    with st.spinner('Processing your question...'):
+                        try:
+                            answer = process_query(query, pages)  # Assuming pages are the documents you want to search
+                            st.subheader('Answer:')
+                            st.write(answer)
+                
+                        except Exception as e:
+                            st.error(f"An error occurred: {str(e)}")
                 
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
