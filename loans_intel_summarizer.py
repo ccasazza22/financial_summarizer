@@ -116,12 +116,24 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=0
 )
 
-def process_query(query, docs):
+def process_file(pages):
     try:
+        # assuming text_splitter.split_text and map_reduce_chain.run accept text 
+        split_docs = text_splitter.split_documents(pages)
+        output = map_reduce_chain.run(split_docs)
+
+        # Embed documents once they are processed
         embeddings = OpenAIEmbeddings()
-        docs = Chroma.from_texts(docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(docs))]).as_retriever()
+        retriever_docs = Chroma.from_texts(split_docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(split_docs))]).as_retriever()
+        
+        return output, retriever_docs
+    except Exception as e:
+        st.error(f"An error occurred during processing: {str(e)}")
+
+def process_query(query, retriever_docs):
+    try:
         chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
-        return chain({"input_documents": docs, "question": query}, return_only_outputs=True)
+        return chain({"input_documents": retriever_docs, "question": query}, return_only_outputs=True)
     except Exception as e:
         st.error(f"An error occurred during processing the query: {str(e)}")
 
@@ -146,9 +158,8 @@ def main():
                 loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
                
-
                 # Process file
-                output = process_file(pages)
+                output, retriever_docs = process_file(pages)
 
                 # Show output
                 st.subheader('Your summarized document:')
@@ -161,7 +172,7 @@ def main():
                 if query:
                     with st.spinner('Processing your question...'):
                         try:
-                            answer = process_query(query, pages)  # Assuming pages are the documents you want to search
+                            answer = process_query(query, retriever_docs)  # Pass the retriever_docs to the process_query function
                             st.subheader('Answer:')
                             st.write(answer)
                 
@@ -173,14 +184,6 @@ def main():
             finally:
                 # Delete the temporary file
                 os.unlink(tfile.name)
-
-def process_file(pages):
-    try:
-        # assuming text_splitter.split_text and map_reduce_chain.run accept text 
-        split_docs = text_splitter.split_documents(pages)
-        return map_reduce_chain.run(split_docs)
-    except Exception as e:
-        st.error(f"An error occurred during processing: {str(e)}")
 
 if __name__ == "__main__":
     main()
