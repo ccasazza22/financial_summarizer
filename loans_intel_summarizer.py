@@ -34,43 +34,19 @@ os.environ["LANGCHAIN_PROJECT"]="loans_intel_transcripts"
 client = Client()
 
 
-llm = ChatOpenAI(model="gpt-3.5-turbo",temperature=0)
+llm = ChatOpenAI(model="gpt-4",temperature=0)
 
 # Map
 from langchain import hub
-map_template = hub.pull("casazza/summarizer-a:daec89c5", api_url="https://api.hub.langchain.com")
+map_template = hub.pull("casazza/summarizer-a:4c223487", api_url="https://api.hub.langchain.com")
 
 
 #map_prompt = PromptTemplate.from_template(prompt=map_template)
 map_chain = LLMChain(llm=llm, prompt=map_template)
 
 # Reduce
-reduce_template = """The following is set of summaries:
-{doc_summaries}\n
 
--------------------------------------------------------------------\n
-
-Based on these summaries, please do the following: 
-(1) Prioritize information on Market Conditions and performance, cost management and savings, business strategy and future outlook, regulatory changes and impact. 
-(2) Divide the relevant information into the following buckets:
-
-Guidance:
-Involves forward-looking financial metrics including revenue, EBITDA, free cash flow, leverage, KPIs, Capex, taxes, interest, and net working capital. It also covers market strategies, major product changes, industry trends, business performance, and operational updates.
-
-Mergers & Acquisitions (M&A): 
-Discusses M&A activities, providing reasons, funding details, and related financials. It includes commentary on buyer/seller expectations and future M&A plans.
-
-Capital Allocation: 
-Covers refinancing plans, recent transactions or issues, sponsor equity, availability of baskets in credit agreement, hedging activities, and maturity details of funding sources.
-
-Other Information: 
-Addresses management changes, ratings updates, and current post-quarter-end levels for cash and RC balance.
-
-Make your final summary: 
-1) As long as it needs to be to be comprehensive
-2) In bulleted form :
-3) Refer to the company by their name 
-"""
+reduce_template = hub.pull("casazza/reduce-template",api_url="https://api.hub.langchain.com")
 
 reduce_prompt = PromptTemplate.from_template(reduce_template)
 
@@ -105,19 +81,15 @@ map_reduce_chain = MapReduceDocumentsChain(
 )
 
 text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-    chunk_size=1000, chunk_overlap=0
+    chunk_size=1000, chunk_overlap=100
 )
 
-#@st.cache(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def process_file(pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
         split_docs = text_splitter.split_documents(pages)
         output = map_reduce_chain.run(split_docs)
-
-        # Show output
-        st.subheader('Your summarized document:')
-        st.code(output, language='')
 
         # Embed documents once they are processed
         embeddings = OpenAIEmbeddings()
@@ -153,6 +125,13 @@ def main():
                 pages = loader.load_and_split()
                
                 output, retriever_docs = process_file(pages)
+
+                if retriever_docs is None:  # An error occurred during file processing
+                    st.error(output)
+                else:
+                    # Show output
+                    st.subheader('Your summarized document:')
+                    st.code(output, language='')
 
                 # Add a section for follow-up questions
                 st.subheader('Ask a follow-up question:')
