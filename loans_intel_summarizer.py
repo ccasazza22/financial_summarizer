@@ -116,6 +116,7 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=0
 )
 
+@st.cache(allow_output_mutation=True)
 def process_file(pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
@@ -152,28 +153,24 @@ def main():
     if uploaded_file is not None:
         with st.spinner('Processing...This may take a few minutes'):
             try:
-                # Create a temporary file and save the uploaded file's content to this temporary file
                 tfile = tempfile.NamedTemporaryFile(delete=False)
                 tfile.write(uploaded_file.read())
                 tfile.close()
 
-                # Now that you have a real file on your filesystem, you can pass its path to Docx2txtLoader
-                print(f"Loading {tfile.name}")
                 loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
                
-                # Process file
-                retriever_docs = process_file(pages)
-
+                output, retriever_docs = process_file(pages)
 
                 # Add a section for follow-up questions
                 st.subheader('Ask a follow-up question:')
                 query = st.text_input("Please enter your question here")
+                submit_button = st.button("Submit Question")  # Add a button here
 
-                if query:
+                if submit_button:  # Check if the button has been pressed
                     with st.spinner('Processing your question...this may take a few minutes'):
                         try:
-                            answer = process_query(query, retriever_docs)  # Pass the retriever_docs to the process_query function
+                            answer = process_query(query, retriever_docs)
                             st.subheader('Answer:')
                             st.write(answer)
                 
@@ -183,7 +180,6 @@ def main():
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
             finally:
-                # Delete the temporary file
                 os.unlink(tfile.name)
 
 if __name__ == "__main__":
