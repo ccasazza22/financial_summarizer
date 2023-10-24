@@ -101,14 +101,14 @@ map_reduce_chain = MapReduceDocumentsChain(
     # The variable name in the llm_chain to put the documents in
     document_variable_name="docs",
     # Return the results of the map steps in the output
-    return_intermediate_steps=False, tags=["Summarizer A"]
+    return_intermediate_steps=False, tags=["Streamlit"]
 )
 
 text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=0
 )
 
-@st.cache(allow_output_mutation=True)
+#@st.cache(allow_output_mutation=True)
 def process_file(pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
@@ -120,10 +120,10 @@ def process_file(pages):
         st.code(output, language='')
 
         # Embed documents once they are processed
-        #embeddings = OpenAIEmbeddings()
-        #retriever_docs = FAISS.from_texts(split_docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(split_docs))]).as_retriever()
+        embeddings = OpenAIEmbeddings()
+        retriever_docs = FAISS.from_texts(split_docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(split_docs))]).as_retriever()
         
-        return output, #retriever_docs
+        return output, retriever_docs
     except Exception as e:
         st.error(f"An error occurred during processing: {str(e)}")
 
