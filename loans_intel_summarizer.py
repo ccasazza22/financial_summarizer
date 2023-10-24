@@ -1,21 +1,16 @@
-from langchain.embeddings.openai import OpenAIEmbeddings
 import streamlit as st
 from pathlib import Path
 import os 
-from langchain.chains.mapreduce import MapReduceChain
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import ReduceDocumentsChain, MapReduceDocumentsChain
 from langchain.chains.llm import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 from langchain.chat_models import ChatOpenAI
-from langchain.chains.summarize import load_summarize_chain
 from langsmith import Client
 from langchain.document_loaders import PyPDFLoader
 from langchain import PromptTemplate, LLMChain
 from langchain.chains import LLMChain
-import langsmith
-from langchain import chat_models, prompts, smith
 import langsmith
 from langchain.document_loaders import Docx2txtLoader
 from dotenv import load_dotenv
@@ -32,9 +27,6 @@ from langchain.vectorstores import FAISS
 load_dotenv()  # take environment variables from .env.
 os.environ['OPENAI_API_KEY'] = st.secrets["general"]["OPENAI_API_KEY"]
 os.environ["LANGCHAIN_API_KEY"]= st.secrets["general"]["LANGCHAIN_API_KEY"]
-
-
-
 os.environ["LANGCHAIN_TRACING_V2"]="true"
 os.environ["LANGCHAIN_ENDPOINT"]="https://api.smith.langchain.com"
 os.environ["LANGCHAIN_PROJECT"]="loans_intel_transcripts"
@@ -42,7 +34,7 @@ os.environ["LANGCHAIN_PROJECT"]="loans_intel_transcripts"
 client = Client()
 
 
-llm = ChatOpenAI(model="gpt-4",temperature=0)
+llm = ChatOpenAI(model="gpt-3.5-turbo",temperature=0)
 
 # Map
 from langchain import hub
@@ -83,7 +75,7 @@ Make your final summary:
 reduce_prompt = PromptTemplate.from_template(reduce_template)
 
 # Run chain
-reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000), prompt=reduce_prompt)
+reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-3.5-turbo",max_tokens=4000), prompt=reduce_prompt)
 
 # Takes a list of documents, combines them into a single string, and passes this to an LLMChain
 combine_documents_chain = StuffDocumentsChain(
