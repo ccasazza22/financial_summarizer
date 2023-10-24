@@ -75,7 +75,7 @@ Make your final summary:
 reduce_prompt = PromptTemplate.from_template(reduce_template)
 
 # Run chain
-reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-3.5-turbo",max_tokens=4000), prompt=reduce_prompt)
+reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000), prompt=reduce_prompt)
 
 # Takes a list of documents, combines them into a single string, and passes this to an LLMChain
 combine_documents_chain = StuffDocumentsChain(
@@ -120,10 +120,10 @@ def process_file(pages):
         st.code(output, language='')
 
         # Embed documents once they are processed
-        embeddings = OpenAIEmbeddings()
-        retriever_docs = FAISS.from_texts(split_docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(split_docs))]).as_retriever()
+        #embeddings = OpenAIEmbeddings()
+        #retriever_docs = FAISS.from_texts(split_docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(split_docs))]).as_retriever()
         
-        return output, retriever_docs
+        return output, #retriever_docs
     except Exception as e:
         st.error(f"An error occurred during processing: {str(e)}")
 
