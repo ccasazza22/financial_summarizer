@@ -82,7 +82,7 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=100
 )
 
-@st.cache(allow_output_mutation=True, suppress_st_warning=True)
+@st.cache(allow_output_mutation=True)
 def process_file(pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
@@ -91,7 +91,7 @@ def process_file(pages):
 
         # Embed documents once they are processed
         embeddings = OpenAIEmbeddings()
-        retriever_docs = FAISS.from_texts(split_docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(split_docs))]).as_retriever()
+        retriever_docs = FAISS.from_documents(split_docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(split_docs))]).as_retriever()
         
         return output, retriever_docs
     except Exception as e:
