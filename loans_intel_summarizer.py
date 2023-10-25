@@ -91,7 +91,7 @@ def process_file(pages):
 
         # Embed documents once they are processed
         embeddings = OpenAIEmbeddings()
-        retriever_docs = FAISS.from_documents(split_docs, embeddings, metadatas=[{"source": str(i)} for i in range(len(split_docs))]).as_retriever()
+        retriever_docs = FAISS.from_documents(split_docs, embeddings)
         
         return output, retriever_docs
     except Exception as e:
