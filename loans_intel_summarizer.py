@@ -82,7 +82,7 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=100
 )
 
-@st.cache(allow_output_mutation=True)
+#@st.cache(allow_output_mutation=True)
 def process_file(pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
@@ -124,12 +124,9 @@ def main():
                
                 output, retriever_docs = process_file(pages)
 
-                if retriever_docs is None:  # An error occurred during file processing
-                    st.error(output)
-                else:
-                    # Show output
-                    st.subheader('Your summarized document:')
-                    st.code(output, language='')
+              
+                st.subheader('Your summarized document:')
+                st.code(output, language='')
 
                 # Add a section for follow-up questions
                 st.subheader('Ask a follow-up question:')
