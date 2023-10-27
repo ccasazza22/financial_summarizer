@@ -82,7 +82,8 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=100
 )
 
-#@st.cache(allow_output_mutation=True)
+
+@st.cache_data
 def process_file(pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
@@ -106,11 +107,8 @@ def process_query(query, retriever_docs):
 
 
 def main():
-    st.title("Loans Intel Earnings Call Summarizer")
-    st.subheader("Welcome to the Document Summarizer Application!")
-    st.write("To get started, please upload a Word (.docx) file. The application will process the file and provide a summarized version of the document contents.")
 
-    uploaded_file = st.file_uploader("Choose a Word file", type=['docx'])
+    uploaded_file = st.file_uploader("Choose a file", type="docx")
 
     if uploaded_file is not None:
         with st.spinner('Processing...This may take a few minutes'):
@@ -122,27 +120,27 @@ def main():
                 loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
                
-                output, retriever_docs = process_file(pages)
+                st.session_state.output, st.session_state.retriever_docs = process_file(pages)
 
-              
                 st.subheader('Your summarized document:')
-                st.code(output, language='')
+                st.code(st.session_state.output, language='')
 
                 # Add a section for follow-up questions
                 st.subheader('Ask a follow-up question:')
                 query = st.text_input("Please enter your question here")
-                submit_button = st.button("Submit Question")  # Add a button here
+                submit_button = st.button("Submit Question")
 
-                if submit_button:  # Check if the button has been pressed
-                    with st.spinner('Processing your question...this may take a few minutes'):
-                        try:
-                            answer = process_query(query, retriever_docs)
-                            st.subheader('Answer:')
-                            st.write(answer)
-                
-                        except Exception as e:
-                            st.error(f"An error occurred: {str(e)}")
-                
+                if submit_button:
+                    def process_question():
+                        with st.spinner('Processing your question...this may take a few minutes'):
+                            try:
+                                answer = process_query(query, st.session_state.retriever_docs)
+                                st.subheader('Answer:')
+                                st.write(answer)
+                            except Exception as e:
+                                st.error(f"An error occurred: {str(e)}")
+                    process_question()
+
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
             finally:
