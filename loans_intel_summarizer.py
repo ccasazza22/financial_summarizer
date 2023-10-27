@@ -107,6 +107,10 @@ def process_query(query, retriever_docs):
 
 
 def main():
+    st.title("Document Processing Application")
+    st.title("AI Document Summarizer")
+    st.subheader("Welcome to the Document Summarizer Application!")
+    st.write("To get started, please upload a Word (.docx) file. The application will process the file and provide a summarized version of the document contents.")
 
     uploaded_file = st.file_uploader("Choose a file", type="docx")
 
