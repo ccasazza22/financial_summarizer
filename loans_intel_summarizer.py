@@ -84,10 +84,10 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
 
 
 @st.cache_resource
-def process_file(pages):
+def process_file(_pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
-        split_docs = text_splitter.split_documents(pages)
+        split_docs = text_splitter.split_documents(_pages)
         output = map_reduce_chain.run(split_docs)
 
         # Embed documents once they are processed
