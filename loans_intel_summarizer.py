@@ -98,10 +98,9 @@ def process_query(query, _pages):
     try:
         # Embed documents once they are processed
         split_docs = text_splitter.split_documents(_pages)
-        embeddings = OpenAIEmbeddings()
-        retriever_docs = FAISS.from_documents(split_docs, embeddings).as_retriever
+        retriever = FAISS.from_documents(split_docs, OpenAIEmbeddings()).as_retriever(search_kwargs={"k": 20})
         
-        docs = retriever_docs.similarity_search(query)
+        docs = retriever.get_relevant_documents(query)
         #chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
         return docs
     except Exception as e:
