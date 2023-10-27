@@ -92,7 +92,7 @@ def process_file(_pages):
 
         # Embed documents once they are processed
         embeddings = OpenAIEmbeddings()
-        retriever_docs = FAISS.from_documents(split_docs, embeddings)
+        retriever_docs = FAISS.from_documents(split_docs, embeddings).as_retriever
         
         return output, retriever_docs
     except Exception as e:
@@ -100,8 +100,10 @@ def process_file(_pages):
 
 def process_query(query, retriever_docs):
     try:
-        chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
-        return chain({"input_documents": retriever_docs, "question": query}, return_only_outputs=True)
+        
+        docs = retriever_docs.get_relevant_documents(query)
+        #chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
+        return docs
     except Exception as e:
         st.error(f"An error occurred during processing the query: {str(e)}")
 
