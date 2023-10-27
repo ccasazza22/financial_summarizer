@@ -126,7 +126,7 @@ def main():
                 loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
                
-                st.session_state.output, st.session_state.retriever_docs = process_file(pages)
+                st.session_state.output = process_file(pages)
 
                 st.subheader('Your summarized document:')
                 st.code(st.session_state.output, language='')
