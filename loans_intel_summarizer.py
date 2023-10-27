@@ -83,7 +83,7 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
 )
 
 
-@st.cache_resource
+@st.cache_resource(ttl=3600)
 def process_file(_pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
@@ -93,7 +93,7 @@ def process_file(_pages):
         # Embed documents once they are processed
         embeddings = OpenAIEmbeddings()
         retriever_docs = FAISS.from_documents(split_docs, embeddings).as_retriever
-        
+       
         return output, retriever_docs
     except Exception as e:
         st.error(f"An error occurred during processing: {str(e)}")
@@ -101,7 +101,7 @@ def process_file(_pages):
 def process_query(query, retriever_docs):
     try:
         
-        docs = retriever_docs.get_relevant_documents(query)
+        docs = retriever_docs.similarity_search(query)
         #chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
         return docs
     except Exception as e:
