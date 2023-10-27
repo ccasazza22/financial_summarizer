@@ -89,17 +89,17 @@ def process_file(_pages):
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
         split_docs = text_splitter.split_documents(_pages)
         output = map_reduce_chain.run(split_docs)
-
-        # Embed documents once they are processed
-        embeddings = OpenAIEmbeddings()
-        retriever_docs = FAISS.from_documents(split_docs, embeddings).as_retriever
        
-        return output, retriever_docs
+        return output
     except Exception as e:
         st.error(f"An error occurred during processing: {str(e)}")
 
-def process_query(query, retriever_docs):
+def process_query(query, _pages):
     try:
+        # Embed documents once they are processed
+        split_docs = text_splitter.split_documents(_pages)
+        embeddings = OpenAIEmbeddings()
+        retriever_docs = FAISS.from_documents(split_docs, embeddings).as_retriever
         
         docs = retriever_docs.similarity_search(query)
         #chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
@@ -140,7 +140,7 @@ def main():
                     def process_question():
                         with st.spinner('Processing your question...this may take a few minutes'):
                             try:
-                                answer = process_query(query, st.session_state.retriever_docs)
+                                answer = process_query(query, pages)
                                 st.subheader('Answer:')
                                 st.write(answer)
                             except Exception as e:
