@@ -20,6 +20,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains.question_answering import load_qa_chain
 from langchain import OpenAI
 from langchain.vectorstores import FAISS
+from langchain.chains import RetrievalQA
 
 
 
@@ -50,6 +51,8 @@ reduce_prompt= hub.pull("casazza/reduce-template",api_url="https://api.hub.langc
 
 # Run chain
 reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000), prompt=reduce_prompt)
+
+inputs = []
 
 # Takes a list of documents, combines them into a single string, and passes this to an LLMChain
 combine_documents_chain = StuffDocumentsChain(
@@ -98,20 +101,20 @@ def process_query(query, _pages):
     try:
         # Embed documents once they are processed
         split_docs = text_splitter.split_documents(_pages)
-        retriever = FAISS.from_documents(split_docs, OpenAIEmbeddings()).as_retriever(search_kwargs={"k": 20})
-        
-        docs = retriever.get_relevant_documents(query)
+        retriever = FAISS.from_documents(split_docs, OpenAIEmbeddings()).as_retriever(search_kwargs={"k": 3})
+        qa = RetrievalQA.from_chain_type(llm=OpenAI(), chain_type="stuff", retriever=retriever.as_retriever())
+        answer = qa.run(query)
         #chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
-        return docs
+        return answer
     except Exception as e:
         st.error(f"An error occurred during processing the query: {str(e)}")
 
 
 def main():
-    st.title("Document Processing Application")
+    st.title("Loans Intel Earnings Call Summarizer")
     st.title("AI Document Summarizer")
     st.subheader("Welcome to the Document Summarizer Application!")
-    st.write("To get started, please upload a Word (.docx) file. The application will process the file and provide a summarized version of the document contents.")
+    st.write("To get started, please upload a Word (.docx) file. The application will process the file and provide a summarized version of the document contents. After the summary is loaded you can ask follow up questions.")
 
     uploaded_file = st.file_uploader("Choose a file", type="docx")
 
