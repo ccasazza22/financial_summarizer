@@ -86,7 +86,7 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
 )
 
 
-@st.cache_resource(ttl=3600)
+@st.cache_data(ttl=3600,max_entries=1)
 def process_file(_pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
