@@ -47,8 +47,8 @@ map_chain = LLMChain(llm=llm, prompt=map_template)
 
 # Reduce
 
-reduce_prompt= hub.pull("casazza/collapse_prompt",api_url="https://api.hub.langchain.com")
-collapse_prompt= hub.pull("casazza/reduce-template",api_url="https://api.hub.langchain.com")
+reduce_prompt= hub.pull("casazza/reduce-template",api_url="https://api.hub.langchain.com")
+collapse_prompt= hub.pull("casazza/collapse_prompt",api_url="https://api.hub.langchain.com")
 
 # Run chain
 reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000), prompt=reduce_prompt)
@@ -92,7 +92,7 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
 )
 
 
-@st.cache_data(ttl=600,max_entries=1)
+@st.cache_data(ttl=300,max_entries=1)
 def process_file(_pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
