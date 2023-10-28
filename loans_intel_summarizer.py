@@ -86,7 +86,7 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
 )
 
 
-@st.cache_data(ttl=3600,max_entries=1)
+@st.cache_data(ttl=600,max_entries=1)
 def process_file(_pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
@@ -129,10 +129,10 @@ def main():
                 loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
                
-                st.session_state.output = process_file(pages)
+                output = process_file(pages)
 
                 st.subheader('Your summarized document:')
-                st.code(st.session_state.output, language='')
+                st.code(output, language='')
 
                 # Add a section for follow-up questions
                 st.subheader('Ask a follow-up question:')
