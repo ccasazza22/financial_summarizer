@@ -35,7 +35,7 @@ os.environ["LANGCHAIN_PROJECT"]="loans_intel_transcripts"
 client = Client()
 
 
-llm = ChatOpenAI(model="gpt-4",temperature=0)
+llm = ChatOpenAI(model="gpt-4",temperature=0,max_tokens=750)
 
 # Map
 from langchain import hub
@@ -43,7 +43,7 @@ map_template = hub.pull("casazza/summarizer-a:4c223487", api_url="https://api.hu
 
 
 #map_prompt = PromptTemplate.from_template(prompt=map_template)
-map_chain = LLMChain(llm=llm, prompt=map_template,max_tokens=750)
+map_chain = LLMChain(llm=llm, prompt=map_template)
 
 # Reduce
 
@@ -102,7 +102,8 @@ def process_query(query, _pages):
         # Embed documents once they are processed
         split_docs = text_splitter.split_documents(_pages)
         retriever = FAISS.from_documents(split_docs, OpenAIEmbeddings())
-        qa = RetrievalQA.from_chain_type(llm=OpenAI(), chain_type="stuff", retriever=retriever.as_retriever())
+        llm = ChatOpenAI(model="gpt-4")
+        qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever.as_retriever())
         answer = qa.run(query)
         #chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
         return answer
