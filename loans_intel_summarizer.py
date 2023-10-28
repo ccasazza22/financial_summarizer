@@ -43,7 +43,7 @@ map_template = hub.pull("casazza/summarizer-a:4c223487", api_url="https://api.hu
 
 
 #map_prompt = PromptTemplate.from_template(prompt=map_template)
-map_chain = LLMChain(llm=llm, prompt=map_template)
+map_chain = LLMChain(llm=llm, prompt=map_template,max_tokens=750)
 
 # Reduce
 
