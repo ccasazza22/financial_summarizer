@@ -103,13 +103,18 @@ def process_file(_pages):
     except Exception as e:
         st.error(f"An error occurred during processing: {str(e)}")
 
+
+
+qa_prompt = hub.pull("casazza/qa-finance-prompt")
+
 def process_query(query, _pages):
     try:
         # Embed documents once they are processed
         split_docs = text_splitter.split_documents(_pages)
         retriever = FAISS.from_documents(split_docs, OpenAIEmbeddings())
         llm = ChatOpenAI(model="gpt-4")
-        qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever.as_retriever())
+        chain_type_kwargs = {"prompt": qa_prompt}
+        qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever.as_retriever(), return_source_documents=True, chain_type_kwargs=chain_type_kwargs)
         answer = qa.run(query)
         #chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
         return answer
