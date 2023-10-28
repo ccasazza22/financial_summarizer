@@ -101,7 +101,7 @@ def process_query(query, _pages):
     try:
         # Embed documents once they are processed
         split_docs = text_splitter.split_documents(_pages)
-        retriever = FAISS.from_documents(split_docs, OpenAIEmbeddings()).as_retriever(search_kwargs={"k": 3})
+        retriever = FAISS.from_documents(split_docs, OpenAIEmbeddings())
         qa = RetrievalQA.from_chain_type(llm=OpenAI(), chain_type="stuff", retriever=retriever.as_retriever())
         answer = qa.run(query)
         #chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
