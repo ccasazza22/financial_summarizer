@@ -39,7 +39,7 @@ llm = ChatOpenAI(model="gpt-4",temperature=0,max_tokens=750)
 
 # Map
 from langchain import hub
-map_template = hub.pull("casazza/summarizer-a:4c223487", api_url="https://api.hub.langchain.com")
+map_template = hub.pull("casazza/summarizer-a", api_url="https://api.hub.langchain.com")
 
 
 #map_prompt = PromptTemplate.from_template(prompt=map_template)
