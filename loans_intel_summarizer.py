@@ -62,7 +62,7 @@ combine_documents_chain = StuffDocumentsChain(
 )
 
 collapse_documents_chain=StuffDocumentsChain(
-    llm_chain=collapse_chain, document_variable_name="doc_summaries"
+    llm_chain=collapse_chain, document_variable_name=["doc_summaries","areas"]
 )
 
 # Combines and iteravely reduces the mapped documents
@@ -93,11 +93,11 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
 
 
 @st.cache_data(ttl=300,max_entries=1)
-def process_file(_pages):
+def process_file(_pages,areas):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
         split_docs = text_splitter.split_documents(_pages)
-        output = map_reduce_chain.run(split_docs)
+        output = map_reduce_chain.run(split_docs,areas)
        
         return output
     except Exception as e:
@@ -127,13 +127,11 @@ def main():
     st.title("AI Document Summarizer")
     st.subheader("Welcome to the Document Summarizer Application!")
     st.write("To get started, please upload a Word (.docx) file. The application will process the file and provide a summarized version of the document contents. After the summary is loaded you can ask follow up questions.")
-    st.subheader('Specific Search Items for Summary:')
-    specific_items = st.text_input("Enter items separated by commas")
-    specific_items_list = [item.strip() for item in specific_items.split(',')]
-    
-
     uploaded_file = st.file_uploader("Choose a file", type="docx")
-
+    st.subheader('Specific Search Items for Summary:')
+    specific_items = st.text_input("Enter a list of areas you want to focused on in the summary. List items separated by commas")
+    areas = [item.strip() for item in specific_items.split(',')]
+    
     if uploaded_file is not None:
         with st.spinner('Processing...This may take a few minutes'):
             try:
@@ -144,7 +142,7 @@ def main():
                 loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
                
-                output = process_file(pages)
+                output = process_file(pages,areas)
 
                 st.subheader('Your summarized document:')
                 st.code(output, language='')
