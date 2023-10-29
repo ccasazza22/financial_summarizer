@@ -130,7 +130,6 @@ def main():
     uploaded_file = st.file_uploader("Choose a file", type="docx")
     
     if uploaded_file is not None:
-        st.cache_data.clear() 
         with st.spinner('Processing...This may take a few minutes'):
             try:
                 tfile = tempfile.NamedTemporaryFile(delete=False)
@@ -143,6 +142,8 @@ def main():
                 output = process_file(pages)
 
                 st.subheader('Your summarized document:')
+                if st.button('Clear cache'):
+                    st.button(st.cache_data.clear() )
                 st.code(output, language='')
 
                 # Add a section for follow-up questions
