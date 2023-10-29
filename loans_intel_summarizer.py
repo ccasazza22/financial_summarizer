@@ -48,7 +48,7 @@ map_chain = LLMChain(llm=llm, prompt=map_template)
 # Reduce
 
 reduce_prompt= hub.pull("casazza/reduce-template",api_url="https://api.hub.langchain.com")
-collapse_prompt= hub.pull("casazza/collapse_prompt",api_url="https://api.hub.langchain.com")
+collapse_prompt= hub.pull("casazza/collapse_prompt:90a46122",api_url="https://api.hub.langchain.com")
 
 # Run chain
 reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000), prompt=reduce_prompt)
