@@ -51,7 +51,7 @@ reduce_prompt= hub.pull("casazza/reduce-template",api_url="https://api.hub.langc
 collapse_prompt= hub.pull("casazza/collapse_prompt",api_url="https://api.hub.langchain.com")
 
 # Run chain
-reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000), prompt=reduce_prompt)
+reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=500), prompt=reduce_prompt)
 collapse_chain=LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000),prompt=collapse_prompt)
 
 inputs = []
