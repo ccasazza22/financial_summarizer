@@ -51,7 +51,7 @@ reduce_prompt= hub.pull("casazza/reduce-template",api_url="https://api.hub.langc
 collapse_prompt= hub.pull("casazza/collapse_prompt",api_url="https://api.hub.langchain.com")
 
 # Run chain
-reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=2000), prompt=reduce_prompt)
+reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000), prompt=reduce_prompt)
 collapse_chain=LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000),prompt=collapse_prompt)
 
 inputs = []
@@ -72,7 +72,7 @@ reduce_documents_chain = ReduceDocumentsChain(
     # If documents exceed context for `StuffDocumentsChain`
     collapse_documents_chain=collapse_documents_chain,
     # The maximum number of tokens to group documents into.
-    token_max=2000,
+    token_max=4000,
 )
 
 # Combining documents by mapping a chain over them, then combining results
