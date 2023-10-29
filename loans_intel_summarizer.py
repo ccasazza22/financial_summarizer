@@ -128,9 +128,6 @@ def main():
     st.subheader("Welcome to the Document Summarizer Application!")
     st.write("To get started, please upload a Word (.docx) file. The application will process the file and provide a summarized version of the document contents. After the summary is loaded you can ask follow up questions.")
     uploaded_file = st.file_uploader("Choose a file", type="docx")
-    st.subheader('Specific Search Items for Summary:')
-    specific_items = st.text_input("Enter a list of areas you want to focused on in the summary. List items separated by commas")
-    specific_items_list = [item.strip() for item in specific_items.split(',')]
     
     if uploaded_file is not None:
         with st.spinner('Processing...This may take a few minutes'):
