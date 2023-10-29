@@ -72,7 +72,7 @@ reduce_documents_chain = ReduceDocumentsChain(
     # If documents exceed context for `StuffDocumentsChain`
     collapse_documents_chain=collapse_documents_chain,
     # The maximum number of tokens to group documents into.
-    token_max=4000,
+    token_max=500,
 )
 
 # Combining documents by mapping a chain over them, then combining results
