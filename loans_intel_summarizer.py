@@ -121,8 +121,8 @@ def process_query(query, _pages):
     except Exception as e:
         st.error(f"An error occurred during processing the query: {str(e)}")
 
-def cacheBust():
-    st.cache_data.clear()
+#def cacheBust():
+    #st.cache_data.clear()
 
 
 
