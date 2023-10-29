@@ -142,8 +142,9 @@ def main():
                 output = process_file(pages)
 
                 st.subheader('Your summarized document:')
-                if st.button('Clear cache'):
-                    st.button(st.cache_data.clear() )
+                st.button('Clear cache')
+                if st.button():
+                    st.button(st.cache_data.clear())
                 st.code(output, language='')
 
                 # Add a section for follow-up questions
