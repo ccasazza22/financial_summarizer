@@ -62,7 +62,7 @@ combine_documents_chain = StuffDocumentsChain(
 )
 
 collapse_documents_chain=StuffDocumentsChain(
-    llm_chain=collapse_chain, document_variable_name=["doc_summaries","areas"]
+    llm_chain=collapse_chain, document_variable_name="doc_summaries"
 )
 
 # Combines and iteravely reduces the mapped documents
@@ -93,11 +93,11 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
 
 
 @st.cache_data(ttl=300,max_entries=1)
-def process_file(_pages,areas):
+def process_file(_pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
         split_docs = text_splitter.split_documents(_pages)
-        output = map_reduce_chain.run(split_docs,areas)
+        output = map_reduce_chain.run(split_docs)
        
         return output
     except Exception as e:
@@ -130,7 +130,7 @@ def main():
     uploaded_file = st.file_uploader("Choose a file", type="docx")
     st.subheader('Specific Search Items for Summary:')
     specific_items = st.text_input("Enter a list of areas you want to focused on in the summary. List items separated by commas")
-    areas = [item.strip() for item in specific_items.split(',')]
+    specific_items_list = [item.strip() for item in specific_items.split(',')]
     
     if uploaded_file is not None:
         with st.spinner('Processing...This may take a few minutes'):
@@ -142,7 +142,7 @@ def main():
                 loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
                
-                output = process_file(pages,areas)
+                output = process_file(pages)
 
                 st.subheader('Your summarized document:')
                 st.code(output, language='')
