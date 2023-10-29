@@ -131,6 +131,7 @@ def main():
     st.title("AI Document Summarizer")
     st.subheader("Welcome to the Document Summarizer Application!")
     st.write("To get started, please upload a Word (.docx) file. The application will process the file and provide a summarized version of the document contents. After the summary is loaded you can ask follow up questions.")
+    st.button(label='Clear cache',on_click=cacheBust)
     uploaded_file = st.file_uploader("Choose a file", type="docx")
     
     if uploaded_file is not None:
@@ -146,7 +147,6 @@ def main():
                 output = process_file(pages)
 
                 st.subheader('Your summarized document:')
-                st.button(label='Clear cache',on_click=cacheBust)
                 st.code(output, language='')
 
                 # Add a section for follow-up questions
