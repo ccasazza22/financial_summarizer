@@ -121,6 +121,10 @@ def process_query(query, _pages):
     except Exception as e:
         st.error(f"An error occurred during processing the query: {str(e)}")
 
+def cacheBust():
+    st.cache_data.clear()
+
+
 
 def main():
     st.title("Loans Intel Earnings Call Summarizer")
@@ -142,9 +146,7 @@ def main():
                 output = process_file(pages)
 
                 st.subheader('Your summarized document:')
-                st.button('Clear cache')
-                if st.button():
-                    st.button(st.cache_data.clear())
+                st.button(label='Clear cache',on_click=cacheBust)
                 st.code(output, language='')
 
                 # Add a section for follow-up questions
