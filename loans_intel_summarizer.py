@@ -130,6 +130,7 @@ def main():
     uploaded_file = st.file_uploader("Choose a file", type="docx")
     
     if uploaded_file is not None:
+        st.cache_data.clear() 
         with st.spinner('Processing...This may take a few minutes'):
             try:
                 tfile = tempfile.NamedTemporaryFile(delete=False)
