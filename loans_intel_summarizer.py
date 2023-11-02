@@ -107,7 +107,7 @@ def process_file(_pages):
             output = map_reduce_chain.run(split_docs)
             st.session_state.run_id = cb.traced_runs[0].id
        
-        return output,' '.join(_pages)
+        return output
     except Exception as e:
         st.error(f"An error occurred during processing: {str(e)}")
 
@@ -152,17 +152,7 @@ def main():
                 loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
                
-                output, original_text = process_file(pages)  # get original text
-
-                col1, col2 = st.beta_columns(2)  # create two columns
-
-                with col1:
-                    st.subheader('Your summarized document:')
-                    st.code(output, language='')
-
-                with col2:
-                    st.subheader('Your original document:')
-                    st.code(original_text, language='')
+                output = process_file(pages)
 
                 st.subheader('Your summarized document:')
                 st.code(output, language='')
