@@ -23,7 +23,7 @@ from langchain import OpenAI
 from langchain.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 from streamlit_feedback import streamlit_feedback
-from expression import get_expression_chain
+#from expression import get_expression_chain
 
 
 
