@@ -1,3 +1,4 @@
+from langchain.callbacks.manager import collect_runs
 import streamlit as st
 from pathlib import Path
 import os 
@@ -21,6 +22,9 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain import OpenAI
 from langchain.vectorstores import FAISS
 from langchain.chains import RetrievalQA
+from streamlit_feedback import streamlit_feedback
+from expression_chain import get_expression_chain
+
 
 
 
@@ -97,7 +101,11 @@ def process_file(_pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
         split_docs = text_splitter.split_documents(_pages)
-        output = map_reduce_chain.run(split_docs)
+        #output = map_reduce_chain.run(split_docs)
+
+        with collect_runs() as cb:
+            output = map_reduce_chain.run(split_docs)
+            st.session_state.run_id = cb.traced_runs[0].id
        
         return output
     except Exception as e:
@@ -148,6 +156,38 @@ def main():
 
                 st.subheader('Your summarized document:')
                 st.code(output, language='')
+                feedback_option = "faces"
+                score_mappings = {"faces": {"😀": 1, "🙂": 0.75, "😐": 0.5, "🙁": 0.25, "😞": 0},}
+
+                if st.session_state.get("run_id"):
+                    run_id = st.session_state.run_id
+                    feedback = streamlit_feedback(
+                        feedback_type=feedback_option,
+                        optional_text_label="[Optional] Please provide an explanation",
+                        key=f"feedback_{run_id}",
+                    )
+                
+                scores = score_mappings[feedback_option]
+
+                if feedback:
+                    score = scores.get(feedback["score"])
+                    if score is not None:
+                        # Formulate feedback type string incorporating the feedback option and score value
+                        feedback_type_str = f"{feedback_option} {feedback['score']}"
+
+                        # Record the feedback with the formulated feedback type string and optional comment
+                        feedback_record = client.create_feedback(
+                            run_id,
+                            feedback_type_str,
+                            score=score,
+                            comment=feedback.get("text"),
+                        )
+                        st.session_state.feedback = {
+                            "feedback_id": str(feedback_record.id),
+                            "score": score,
+                        }
+                    else:
+                        st.warning("Invalid feedback score.")
 
                 # Add a section for follow-up questions
                 st.subheader('Ask a follow-up question:')
