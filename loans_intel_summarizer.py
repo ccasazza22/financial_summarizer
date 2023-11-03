@@ -156,8 +156,8 @@ def main():
 
                 st.subheader('Your summarized document:')
                 st.code(output, language='')
-                with st.expander:
-                    st.code(original_text)
+                with st.expander("Original Transcript"):
+                    st.write(original_text)
                 feedback_option = "faces"
                 score_mappings = {"faces": {"😀": 1, "🙂": 0.75, "😐": 0.5, "🙁": 0.25, "😞": 0},}
 
