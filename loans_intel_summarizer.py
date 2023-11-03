@@ -106,8 +106,8 @@ def process_file(_pages):
         with collect_runs() as cb:
             output = map_reduce_chain.run(split_docs)
             st.session_state.run_id = cb.traced_runs[0].id
-       
-        return output, ''.join(_pages)
+        texts = [doc.page_content for doc in _pages]       
+        return output, ''.join(texts)
     except Exception as e:
         st.error(f"An error occurred during processing: {str(e)}")
 
