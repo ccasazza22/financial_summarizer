@@ -153,18 +153,11 @@ def main():
                 pages = loader.load_and_split()
                
                 output,original_text = process_file(pages)
-                col1, col2 = st.beta_columns(2)  # create two columns
-
-                with col1:
-                    st.subheader('Your summarized document:')
-                    st.code(output, language='')
-
-                with col2:
-                    st.subheader('Your original document:')
-                    st.code(original_text, language='')
 
                 st.subheader('Your summarized document:')
                 st.code(output, language='')
+                with st.expander:
+                    st.code(original_text)
                 feedback_option = "faces"
                 score_mappings = {"faces": {"😀": 1, "🙂": 0.75, "😐": 0.5, "🙁": 0.25, "😞": 0},}
 
