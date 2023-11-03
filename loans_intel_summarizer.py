@@ -30,8 +30,8 @@ from streamlit_feedback import streamlit_feedback
 
 
 load_dotenv()  # take environment variables from .env.
-os.environ['OPENAI_API_KEY'] = st.secrets["general"]["OPENAI_API_KEY"]
-os.environ["LANGCHAIN_API_KEY"]= st.secrets["general"]["LANGCHAIN_API_KEY"]
+os.environ['OPENAI_API_KEY'] = st.secrets['general']["OPENAI_API_KEY"]
+os.environ["LANGCHAIN_API_KEY"]= st.secrets['general']["LANGCHAIN_API_KEY"]
 os.environ["LANGCHAIN_TRACING_V2"]="true"
 os.environ["LANGCHAIN_ENDPOINT"]="https://api.smith.langchain.com"
 os.environ["LANGCHAIN_PROJECT"]="loans_intel_transcripts"
@@ -107,7 +107,7 @@ def process_file(_pages):
             output = map_reduce_chain.run(split_docs)
             st.session_state.run_id = cb.traced_runs[0].id
        
-        return output
+        return output, ''.join(_pages)
     except Exception as e:
         st.error(f"An error occurred during processing: {str(e)}")
 
@@ -152,7 +152,16 @@ def main():
                 loader = Docx2txtLoader(tfile.name)
                 pages = loader.load_and_split()
                
-                output = process_file(pages)
+                output,original_text = process_file(pages)
+                col1, col2 = st.beta_columns(2)  # create two columns
+
+                with col1:
+                    st.subheader('Your summarized document:')
+                    st.code(output, language='')
+
+                with col2:
+                    st.subheader('Your original document:')
+                    st.code(original_text, language='')
 
                 st.subheader('Your summarized document:')
                 st.code(output, language='')
