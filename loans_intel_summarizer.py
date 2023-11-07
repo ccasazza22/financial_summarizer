@@ -88,7 +88,7 @@ map_reduce_chain = MapReduceDocumentsChain(
     # The variable name in the llm_chain to put the documents in
     document_variable_name="docs",
     # Return the results of the map steps in the output
-    return_intermediate_steps=False, tags=["Streamlit"]
+    return_intermediate_steps=True, tags=["Streamlit"]
 )
 
 text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
@@ -96,7 +96,7 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
 )
 
 
-@st.cache_data(ttl=300,max_entries=1)
+@st.cache_data(ttl=500,max_entries=1)
 def process_file(_pages):
     try:
         # assuming text_splitter.split_text and map_reduce_chain.run accept text 
