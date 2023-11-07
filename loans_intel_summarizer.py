@@ -88,7 +88,7 @@ map_reduce_chain = MapReduceDocumentsChain(
     # The variable name in the llm_chain to put the documents in
     document_variable_name="docs",
     # Return the results of the map steps in the output
-    return_intermediate_steps=True, tags=["Streamlit"]
+    return_intermediate_steps=False, tags=["Streamlit"]
 )
 
 text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
