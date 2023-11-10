@@ -43,7 +43,7 @@ llm = ChatOpenAI(model="gpt-3.5-turbo",temperature=0,max_tokens=350)
 
 # Map
 from langchain import hub
-map_template = hub.pull("casazza/summarizer-a", api_url="https://api.hub.langchain.com")
+map_template = hub.pull("casazza/map_template", api_url="https://api.hub.langchain.com")
 
 
 #map_prompt = PromptTemplate.from_template(prompt=map_template)
@@ -52,7 +52,7 @@ map_chain = LLMChain(llm=llm, prompt=map_template)
 # Reduce
 
 reduce_prompt= hub.pull("casazza/reduce-template",api_url="https://api.hub.langchain.com")
-collapse_prompt= hub.pull("casazza/collapse_prompt:90a46122",api_url="https://api.hub.langchain.com")
+collapse_prompt= hub.pull("casazza/collapse_prompt",api_url="https://api.hub.langchain.com")
 
 # Run chain
 reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4-1106-preview",max_tokens=4000), prompt=reduce_prompt)
