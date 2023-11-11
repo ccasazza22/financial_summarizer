@@ -39,7 +39,7 @@ os.environ["LANGCHAIN_PROJECT"]="loans_intel_transcripts"
 client = Client()
 
 
-llm = ChatOpenAI(model="gpt-3.5-turbo",temperature=0,max_tokens=350)
+llm = ChatOpenAI(model="gpt-4",temperature=0,max_tokens=350)
 
 # Map
 from langchain import hub
