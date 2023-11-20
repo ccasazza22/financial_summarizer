@@ -211,8 +211,8 @@ def main():
                                 answer,relevant_docs = process_query(query, pages)
                                 st.subheader('Answer:')
                                 st.write(answer)
-                                st.subheader("Relevant Part of Text:")
-                                st.write(relevant_docs)
+                                with st.expander("Relevant Part of Text:"):
+                                    st.write(relevant_docs)
                             except Exception as e:
                                 st.error(f"An error occurred: {str(e)}")
                     process_question()
