@@ -39,11 +39,11 @@ os.environ["LANGCHAIN_PROJECT"]="loans_intel_transcripts"
 client = Client()
 
 
-llm = ChatOpenAI(model="gpt-3.5-turbo",temperature=0,max_tokens=350)
+llm = ChatOpenAI(model="gpt-4-1106-preview",temperature=0,max_tokens=1000)
 
 # Map
 from langchain import hub
-map_template = hub.pull("casazza/summarizer-a", api_url="https://api.hub.langchain.com")
+map_template = hub.pull("casazza/map_template", api_url="https://api.hub.langchain.com")
 
 
 #map_prompt = PromptTemplate.from_template(prompt=map_template)
@@ -52,11 +52,11 @@ map_chain = LLMChain(llm=llm, prompt=map_template)
 # Reduce
 
 reduce_prompt= hub.pull("casazza/reduce-template",api_url="https://api.hub.langchain.com")
-collapse_prompt= hub.pull("casazza/collapse_prompt:90a46122",api_url="https://api.hub.langchain.com")
+collapse_prompt= hub.pull("casazza/collapse_prompt",api_url="https://api.hub.langchain.com")
 
 # Run chain
-reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000), prompt=reduce_prompt)
-collapse_chain=LLMChain(llm=ChatOpenAI(model="gpt-4",max_tokens=4000),prompt=collapse_prompt)
+reduce_chain = LLMChain(llm=ChatOpenAI(model="gpt-4-1106-preview",max_tokens=4096), prompt=reduce_prompt)
+collapse_chain=LLMChain(llm=ChatOpenAI(model="gpt-4-1106-preview",max_tokens=4096),prompt=collapse_prompt)
 
 inputs = []
 
@@ -76,7 +76,7 @@ reduce_documents_chain = ReduceDocumentsChain(
     # If documents exceed context for `StuffDocumentsChain`
     collapse_documents_chain=collapse_documents_chain,
     # The maximum number of tokens to group documents into.
-    token_max=3000,
+    token_max=15000,
 )
 
 # Combining documents by mapping a chain over them, then combining results
@@ -90,6 +90,15 @@ map_reduce_chain = MapReduceDocumentsChain(
     # Return the results of the map steps in the output
     return_intermediate_steps=False, tags=["Streamlit"]
 )
+
+# Define LLM chain
+
+def summarizedocs(docs):
+    llm_chain = LLMChain(llm=llm, prompt=map_template)
+    # Define StuffDocumentsChain
+    stuff_chain = StuffDocumentsChain(llm_chain=llm_chain, document_variable_name="docs")
+
+
 
 text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=100
@@ -122,10 +131,11 @@ def process_query(query, _pages):
         retriever = FAISS.from_documents(split_docs, OpenAIEmbeddings())
         llm = ChatOpenAI(model="gpt-4")
         chain_type_kwargs = {"prompt": qa_prompt}
-        qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever.as_retriever(), chain_type_kwargs=chain_type_kwargs)
-        answer = qa.run(query)
+        qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever.as_retriever(),chain_type_kwargs=chain_type_kwargs)
+        result = qa.run(query)
+        docs = retriever.similarity_search(query)
         #chain = load_qa_chain(OpenAI(temperature=0), chain_type="refine")
-        return answer
+        return result,docs[0].page_content
     except Exception as e:
         st.error(f"An error occurred during processing the query: {str(e)}")
 
@@ -155,7 +165,7 @@ def main():
                 output,original_text = process_file(pages)
 
                 st.subheader('Your summarized document:')
-                st.code(output, language='')
+                st.code(output,language="")
                 with st.expander("Original Transcript"):
                     st.write(original_text)
                 feedback_option = "faces"
@@ -200,9 +210,11 @@ def main():
                     def process_question():
                         with st.spinner('Processing your question...this may take a few minutes'):
                             try:
-                                answer = process_query(query, pages)
+                                answer,relevant_docs = process_query(query, pages)
                                 st.subheader('Answer:')
                                 st.write(answer)
+                                st.subheader("Relevant Part of Text:")
+                                st.write(relevant_docs)
                             except Exception as e:
                                 st.error(f"An error occurred: {str(e)}")
                     process_question()

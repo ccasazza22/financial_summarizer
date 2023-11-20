@@ -5,7 +5,7 @@ import numpy as np
 from dtw import *
 
 # Assume you have a DataFrame 'df' with columns 'url', 'timestamp', 'clicks', 'impressions', 'ctr', 'average_rank'
-df = pd.read_csv('/Users/ccasazza/Downloads/review_data_sleep.csv')
+df = pd.read_csv('/Users/ccasazza/Downloads/energy_Geo_controlgroup_data.csv')
 
 # Group by url and timestamp to get time series data of each URL
 url_time_series = df.groupby(['url', 'timestamp']).sum().reset_index()
@@ -21,17 +21,13 @@ url_time_series.to_csv('/Users/ccasazza/Downloads/url_time_series.csv')
 
 
 def calculate_dtw2(url1, url2):
-    alignment = dtw(url1_data, url2_data, keep_internals=True)
+    alignment = dtw(url1, url2, keep_internals=True)
     return alignment.distance
 
 
-url1_data = [5.93, 7.0, 7.03, 6.92, 7.13, 7.48, 7.55, 6.92, 7.12]
-url2_data = [7.81, 8.16, 8.13, 8.08, 8.38, 7.48, 7.22, 7.15, 7.44]
-distance = calculate_dtw2(url1_data, url2_data)
-#print(distance)
 
 # Assume that 'test_group_urls' is a list of URLs in the test group
-test_group_urls = ["https://www.cnet.com/health/sleep/nectar-mattress-review/", "https://www.cnet.com/health/sleep/beautyrest-mattress-reviews-premium-beds-from-top-rated-industry-veteran/", "https://www.cnet.com/health/sleep/tempurpedic-mattress-review/"]
+test_group_urls = ["https://www.cnet.com/home/energy-and-utilities/california-solar-panels/", "https://www.cnet.com/home/energy-and-utilities/florida-solar-panels/","https://www.cnet.com/home/energy-and-utilities/michigan-solar-panels/","https://www.cnet.com/home/energy-and-utilities/maryland-solar-panels/","https://www.cnet.com/home/energy-and-utilities/pennsylvania-solar-panels/"]
 
 # All unique URLs in the DataFrame
 all_urls = df['url'].unique().tolist()
@@ -49,7 +45,7 @@ for url1 in test_group_urls:
         print(url2)
         if url2 not in distances:
             distances[url2] = []
-        distances[url2].append(calculate_dtw2(url_time_series[('average_rank', url1)].values, url_time_series[('average_rank', url2)].values))
+        distances[url2].append(calculate_dtw2(url_time_series[('clicks', url1)].values, url_time_series[('clicks', url2)].values))
 
 # Average the distances for each URL in the larger group
 average_distances = {url: np.mean(distances[url]) for url in distances}
